@@ -99,7 +99,16 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        # for every value in the domain, if value is longer than constraint, remove it
+        for variable in self.domains:
+            values_to_be_removed = []
+            for value in self.domains[variable]:
+                if len(value) > variable.length:
+                    values_to_be_removed.append(value)
+
+            for value in values_to_be_removed:
+                self.domains[variable].remove(value)
+
 
     def revise(self, x, y):
         """
@@ -110,6 +119,7 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
+        
         raise NotImplementedError
 
     def ac3(self, arcs=None):
