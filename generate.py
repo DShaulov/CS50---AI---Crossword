@@ -119,8 +119,31 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        
-        raise NotImplementedError
+        # for every possible word in x, there must be a word in y that starts with the same char at the overlap
+        revision_made = False
+        overlap_index = self.crossword.overlaps[(x, y)]
+        x_values_to_be_removed = []
+        print(self.domains[x])
+        for val_x in self.domains[x]:
+            found_y = False
+            for val_y in self.domains[y]:
+                try:
+                    if val_x[overlap_index[0]] == val_y[overlap_index[1]]:
+                        print("Hey found a match")
+                        found_y = True
+                        break
+                except IndexError:
+                    continue
+
+            if found_y == False:
+                x_values_to_be_removed.append(val_1)
+                revision_made = True
+
+        for value in x_values_to_be_removed:
+            self.domains[x].remove(value)
+    
+        print(self.domains[x])
+        return revision_made
 
     def ac3(self, arcs=None):
         """
@@ -131,7 +154,17 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        # if arcs == None, start with an initial queue of all the arcs in the problem
+        if arcs == None:
+            arcs = self.crossword.overlaps
+        
+        for arc in arcs:
+            # if there is no overlap between the variables, continue
+            if arcs[arc] == None:
+                continue
+            else:
+                self.revise(arc[0], arc[1])            
+        
 
     def assignment_complete(self, assignment):
         """
