@@ -201,27 +201,32 @@ class CrosswordCreator():
 
         
         for var in assignment:
-
+            # if no value (word) has been assigned, continue
+            if assignment[var] == None:
+                continue
             # check to see if every word is unique
             for comp_var in assignment:
                 if var == comp_var:
                     continue
-                if assignment[var] == assignment[comp_var]:
+                if assignment[var] == assignment[comp_var] and assignment[var] != None:
                     return False
 
             # check to see if every value is in the correct length
-            if len[assignment[var]] != var.length:
+            if len(assignment[var]) != var.length:
                 return False
         
             # check to see if there are no conflicting characters between neighboring variables
             var_neighbors = self.crossword.neighbors(var)
             for neighbor_var in var_neighbors:
+                # if the neighboring var doesnt have a value assigned, continue
+                if assignment[neighbor_var] == None:
+                    continue
                 # get the overlap between var and his neighbor
                 overlap_index = self.crossword.overlaps[(var, neighbor_var)]
                 if overlap_index == None:
                     continue
                 # compare characters at overlap indices
-                if var[overlap_index[0]] != neighbor_var[overlap_index[1]]:
+                if assignment[var][overlap_index[0]] != assignment[neighbor_var][overlap_index[1]]:
                     return False
 
         return True
@@ -270,10 +275,11 @@ class CrosswordCreator():
         if self.assignment_complete(assignment):
             return assignment
 
-        var = self.select_unassigned_variable()
+        var = self.select_unassigned_variable(assignment)
         for value in self.order_domain_values(var, assignment):
             # check if value is cosistent with the constraints
             deep_copy_assignment = copy.deepcopy(assignment)
+            deep_copy_assignment[var] = value
             if self.consistent(deep_copy_assignment):
                 assignment[var] = value
                 result = self.backtrack(assignment)
@@ -281,7 +287,7 @@ class CrosswordCreator():
                     return result
                 
                 # if result is a failure, remove it from the assignment
-                assignment[var].remove(assignment[var])
+                assignment[var] = None
         # if gone through every var, and no satisfying assignment possible,
         # return None
         return None
