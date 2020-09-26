@@ -232,10 +232,6 @@ class CrosswordCreator():
         return True
 
         
-            
-
-
-
     def order_domain_values(self, var, assignment):
         """
         Return a list of values in the domain of `var`, in order by
@@ -243,8 +239,41 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        all_values = self.domains[var]
-        return all_values
+        all_var_values = self.domains[var]
+
+        # create a dictionary for mapping values to eliminations
+        value_elimination_dict = {}
+        for value in all_var_values:
+            value_elimination_dict[value] = None
+        
+        # get a list of all of var's neighbors
+        var_neighbors = self.crossword.neighbors(var)
+        # for every value in domains[var], count how many variables are ruled out for neighboring variables
+        for value in self.domains[var]:
+            num_ruled_out = 0
+            for neighbor_var in var_neighbors:
+                # if neighbor_var has already been assigned in assignment, dont count it
+                if assignment[neighbor_var] != None:
+                    continue
+                for comp_value in self.domains[neighbor_var]:
+                    # check how many values are ruled out for being identical
+                    if comp_value == value:
+                        num_ruled_out = num_ruled_out + 1
+                        continue            
+                    # check how many values are ruled out for not matching overlap characters
+                    vars_overlap_index = self.crossword.overlaps[(var, neighbor_var)]
+                    try:
+                        if value[vars_overlap_index[0]] != comp_value[vars_overlap_index[1]]:
+                            num_ruled_out = num_ruled_out + 1
+                    except IndexError:
+                        num_ruled_out = num_ruled_out + 1
+
+
+            # add the variable with its elimination count to the dictionary
+            value_elimination_dict[value] = num_ruled_out
+
+        sorted_dict_list = sorted(value_elimination_dict, key=value_elimination_dict.get)
+        return sorted_dict_list
 
     def select_unassigned_variable(self, assignment):
         """
