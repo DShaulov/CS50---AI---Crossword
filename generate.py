@@ -283,9 +283,16 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
+        fewest_values = 10000
+        fewest_values_var = None
         for var in assignment:
+            # if var has no assignment, check how many values are in its domain
             if assignment[var] == None:
-                return var
+                if len(self.domains[var]) < fewest_values:
+                    fewest_values_var = var
+                    fewest_values = len(self.domains[var])
+
+        return fewest_values_var
 
     def backtrack(self, assignment):
         """
@@ -309,7 +316,7 @@ class CrosswordCreator():
             # check if value is cosistent with the constraints
             deep_copy_assignment = copy.deepcopy(assignment)
             deep_copy_assignment[var] = value
-            if self.consistent(deep_copy_assignment):
+            if self.consistent(deep_copy_assignment):                
                 assignment[var] = value
                 result = self.backtrack(assignment)
                 if result != None:

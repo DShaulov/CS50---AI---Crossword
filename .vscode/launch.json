@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["data/structure2.txt", "data/words1.txt"]
+            "args": ["data/structure2.txt", "data/words2.txt"]
         }
     ]
 }
